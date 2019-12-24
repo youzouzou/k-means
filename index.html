@@ -18,7 +18,7 @@
     let centers = []; // 中心点数据数组
     let centerIndexs = []; // 中心点数据下标数组
     let types = []; // 正确的分类数据
-    let m = 0; // 输出第m簇分类结果
+    let m = 0; // 当前迭代次数
 
     /**
     * @getDistance
@@ -142,8 +142,6 @@
                 rightTypes++;
             }
         }
-        // console.log('第', m, '回，分类正确率：', rightTypes / data.length * 100, '%');
-        // console.log('分类后的数据：', typeData);
         document.write('第' + m + '回，分类正确率：' + (rightTypes / data.length * 100) + '% <br>');
         m++;
     }
