@@ -10,6 +10,8 @@
 
 项目：[项目源码](https://github.com/youzouzou/k-means)
 
+数据集来源：[UCI](http://archive.ics.uci.edu/ml/datasets/Iris)
+
 报告：[运行结果](https://youzouzou.github.io/k-means/index)
 
 ---
@@ -24,3 +26,12 @@
 4.重复2、3，直到聚类数据不再更新或达到最大迭代次数
 
 5.输出最终的聚类中心和k个簇划分
+
+---
+
+#### 初始参数说明
+- 划分的簇的数目：k
+- 最大迭代次数：n
+- 中心点数据数组：centers
+- 中心点数据数组对应在数据集中的下标，用于初始化中心点时进行排重：centerIndexs
+- 当前迭代次数：m
