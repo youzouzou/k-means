@@ -1,7 +1,13 @@
 # k-means
-js实现k-means算法
+环境：macOS 10.14.5
+语言：JavaScript
+作者：尤桂芳
+日期：2019.12.24
+项目：[项目源码](https://github.com/youzouzou/k-means)
+报告：[运行结果](https://youzouzou.github.io/k-means/index)
 
-算法实现步骤：
+---
+#### 算法实现步骤：
 
 1.为每个聚类选择一个初始聚类中心
 
