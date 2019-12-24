@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>K-means</title>
+</head>
+
+<body>
+
+</body>
+<script>
+    // 初始化数据
+    let k = 3; // 划分的簇的数目
+    let n = 10; // 最大迭代次数N
+    let centers = []; // 中心点数据数组
+    let centerIndexs = []; // 中心点数据下标数组
+    let types = []; // 正确的分类数据
+    let m = 0; // 输出第m簇分类结果
+
+    /**
+    * @getDistance
+    * 获取两个样本点数据之间的距离平方
+    */
+    function getDistance(obj1, obj2) {
+        let dis = Math.pow(Number(obj1.SepalLengthCm) - Number(obj2.SepalLengthCm), 2)
+            + Math.pow(Number(obj1.SepalWidthCm) - Number(obj2.SepalWidthCm), 2)
+            + Math.pow(Number(obj1.PetalLengthCm) - Number(obj2.PetalLengthCm), 2)
+            + Math.pow(Number(obj1.PetalWidthCm) - Number(obj2.PetalWidthCm), 2);
+        return dis;
+    }
+
+    /**
+    * @getCenter
+    * 1 为每个聚类选择一个初始聚类中心
+    * 这里采用与已选中点的欧式距离最大的点，作为下一个聚类的初始中心点
+    */
+    function getCenter(data) {
+        let firstIndex = parseInt(Math.random() * data.length); // 第一个聚类的中心点随机选取
+        centers.push(JSON.parse(JSON.stringify(data[firstIndex])));
+        centerIndexs.push(firstIndex);
+        data[firstIndex].type = 0;
+        types[0] = data[firstIndex].Species;
+        // 选取欧式距离最大的其他点
+        for (let i = 1; i < k; i++) {
+            let dis = 0, index = -1;
+            for (let j = 0; j < data.length; j++) {
+                // 此处因预先知道有三类鸢尾花，所以初始时选取不同种类的点作为中心点，以便后面比较正确率
+                if (centerIndexs.indexOf(j) == -1 && types.indexOf(data[j].Species) == -1
+                ) {
+                    let tmpDis = 0;
+                    for (let k = 0; k < centerIndexs.length; k++) {
+                        tmpDis += getDistance(data[j], data[k]);
+                    }
+                    if (tmpDis > dis) {
+                        dis = tmpDis;
+                        index = j;
+                    }
+                }
+            }
+            if (index > -1) {
+                centerIndexs.push(index);
+                centers.push(JSON.parse(JSON.stringify(data[index])));
+                data[index].type = i;
+                types[i] = data[index].Species;
+            }
+        }
+    }
+
+    /**
+    * @allocate
+    * 2 将样本集按照最小距离原则分配到最邻近聚类
+    */
+    function allocate(data) {
+        let count = 0; // 更新数，用于判断是否不再更新
+        for (let i = 0; i < data.length; i++) {
+            let dis = 9007199254740992, newType = -1;
+            if (centerIndexs.indexOf(i) == -1) {
+                for (let j = 0; j < k; j++) {
+                    let tmpDis = getDistance(centers[j], data[i]);
+                    if (tmpDis < dis) {
+                        dis = tmpDis;
+                        newType = j;
+                    }
+                }
+            }
+            if (newType != data[i].type) {
+                count++;
+                data[i].type = newType;
+            }
+        }
+        output(data);
+        return count == 0;
+    }
+
+    /**
+    * @update
+    * 3 使用每个聚类的样本均值更新聚类中心
+    */
+    function update(data) {
+        let len = data.length;
+        centers = [];
+        centersIndex = [];
+        for (let i = 0; i < k; i++) {
+            centers.push({
+                SepalLengthCm: 0,
+                SepalWidthCm: 0,
+                PetalLengthCm: 0,
+                PetalWidthCm: 0
+            });
+        }
+        let typeArr = typeOutput(data);
+        for (let i = 0; i < typeArr.length; i++) {
+            for (let j = 0; j < typeArr[i].length; j++) {
+                centers[i].SepalLengthCm += Number(typeArr[i][j].SepalLengthCm);
+                centers[i].SepalWidthCm += Number(typeArr[i][j].SepalWidthCm);
+                centers[i].PetalLengthCm += Number(typeArr[i][j].PetalLengthCm);
+                centers[i].PetalWidthCm += Number(typeArr[i][j].PetalWidthCm);
+            }
+        }
+
+
+        for (let i = 0; i < k; i++) {
+            centers[i].SepalLengthCm /= (typeArr[i].length * 1.0);
+            centers[i].SepalWidthCm /= (typeArr[i].length * 1.0);
+            centers[i].PetalLengthCm /= (typeArr[i].length * 1.0);
+            centers[i].PetalWidthCm /= (typeArr[i].length * 1.0);
+        }
+        return allocate(data);
+    }
+
+    /**
+    * output
+    * 4 输出最终的聚类中心和k个簇划分
+    */
+    function output(data) {
+        let rightTypes = 0;
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].Species === types[data[i].type]) {
+                rightTypes++;
+            }
+        }
+        // console.log('第', m, '回，分类正确率：', rightTypes / data.length * 100, '%');
+        // console.log('分类后的数据：', typeData);
+        document.write('第' + m + '回，分类正确率：' + (rightTypes / data.length * 100) + '% <br>');
+        m++;
+    }
+
+    function typeOutput(data) {
+        let typeArr = [];
+        for (let i = 0; i < k; i++) {
+            typeArr.push([]);
+        }
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].type > -1) {
+                typeArr[data[i].type].push(data[i]);
+            }
+        }
+        return typeArr;
+    }
+
+    /**
+    * @Iris
+    * 获取鸢尾花数据集，数据来源于UCI：http://archive.ics.uci.edu/ml/datasets/Iris
+    * SepalLengthCm：花萼长度
+    * SepalWidthCm：花萼宽度
+    * PetalLengthCm：花瓣长度
+    * PetalWidthCm：花瓣宽度
+    */
+    function Iris(res) {
+        let data = res.data;
+        getCenter(data);
+        allocate(data);
+        for (let i = 0; i < n; i++) {
+            let status = update(data);
+            let res = [];
+            for (let j = 0; j < k; j++) {
+                res[j] = 0;
+            }
+            for (let i = 0; i < data.length; i++) {
+                res[data[i].type]++;
+            }
+            if (status) {
+                break;
+            }
+        }
+        let typeData = typeOutput(data);
+        for (let i = 0; i < typeData.length; i++) {
+            document.writeln('<p>第' + i + '类：(' + typeData[i].length + ')</p>')
+            for (let j = 0; j < typeData[i].length; j++) {
+                document.writeln(JSON.stringify(typeData[i][j]));
+            }
+        }
+    }
+</script>
+<script src="./Iris.json?callback=Iris"></script>
+
+</html>
