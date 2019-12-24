@@ -12,7 +12,7 @@
 
 数据集来源：[UCI](http://archive.ics.uci.edu/ml/datasets/Iris)
 
-报告：[运行结果](https://youzouzou.github.io/k-means/index)
+报告：[运行结果演示](https://youzouzou.github.io/k-means/index)
 
 ---
 #### 算法实现步骤：
